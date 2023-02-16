@@ -14,6 +14,11 @@ app.use(cors());
 app.use(express.json())
 app.use(bodyParser.urlencoded({extended: true}))
 
+// welcome
+app.get('/', (req, res) => {
+    res.send("Hii Welcome!");
+})
+
 // list of movies
 app.get('/movies', (req, res) =>{
     db.collection('Primedb').find().toArray((err, result) => {
@@ -22,18 +27,28 @@ app.get('/movies', (req, res) =>{
     })
 }) 
 
-// 
-// app.post('/addMovies', (req, res) => {
-//     db.collection('Primedb').insertOne(req.body,(err,result) => {
-//         if(err) throw err;
-//         res.send('Data Inserted')
-//     })
-// })
+// with respect to category_id (http://localhost:8900/movies/1)
+app.get('/movies/:cat_Id',(req,res) => {
+    let id = Number(req.params.cat_Id)
 
-app.get('/', (req, res) => {
-    res.send("Hii Welcome!");
+    db.collection('Primedb').find({category_id:id}).toArray((err,result) => {
+        if(err) throw err;
+        res.send(result)
+    })
 })
 
+// app.use((req, res, next) => {
+//     res.header({"Access-Control-Allow-Origin": "*"});
+//     next();
+// }) 
+
+// add movies
+app.post('/addMovies',(req,res) => {
+    db.collection('Primedb').insert(req.body,(err,result) => {
+        if(err) throw err;
+        res.send('Data Inserted')
+    })
+})
 // connect with mongodb
 MongoClient.connect(mongoUrl,{useNewUrlParser:true,  useUnifiedTopology: true},(err,connectedClient) => {
     if(err) console.log('Error while connecting');
